@@ -1,7 +1,8 @@
 import numpy as np
-import nltk
-import sklearn
-import keras
+from nltk.corpus import brown
+from sklearn.model_selection import train_test_split
+from keras import Sequential
+from keras.layers import Dense, Flatten, LSTM
 
 
 def pos_tag(corpus):
@@ -12,12 +13,12 @@ def train_tagger():
     x_train, x_test, y_train, y_test = load_dataset()
 
 
+
 def load_dataset():
-    corpus = set(nltk.corpus.brown.tagged_words(tagset='universal'))
+    corpus = set(brown.tagged_words(tagset='universal'))
     x = [word for (word, tag) in corpus]
     y = [tag for (word, tag) in corpus]
-    x_train, x_test, y_train, y_test = \
-        sklearn.model_selection.train_test_split(x, y, test_size=0.25)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
     return x_train, x_test, y_train, y_test
 
 
