@@ -3,7 +3,7 @@ from nltk.corpus import brown, treebank
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from keras import Sequential
-from keras.layers import Dense, Flatten, LSTM
+from keras.layers import Embedding, Dense, Flatten, LSTM
 
 
 def evaluate_tagger():
@@ -30,16 +30,18 @@ def train_tagger():
 
 def compile_network():
     network = create_network()
-    network.compile(loss='categorical_crossentropy', optimizer='adam')
+    network.compile(loss='categorical_crossentropy',
+                    optimizer='adam',
+                    metrics=['accuracy'])
     return network
 
 
 def create_network():
     network = Sequential()
+    network.add(Embedding(len(set(brown.words())), 64, input_length=50))
     network.add(LSTM(128))
-    network.add(LSTM(64))
-    network.add(LSTM(64))
-    network.add(LSTM(12, activation='softmax', recurrent_activation='softmax'))
+    network.add(LSTM(12, input_shape=(None, 128),
+                     activation='softmax', recurrent_activation='softmax'))
     return network
 
 
@@ -55,8 +57,6 @@ def get_corpus():
 
 
 def main():
-    words, true_tags = get_corpus()
-    predicted_tags = pos_tag(words)
     evaluate_tagger()
 
 
