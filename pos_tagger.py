@@ -1,5 +1,7 @@
 import numpy as np
 import nltk
+import sklearn
+import keras
 
 
 def pos_tag(corpus):
@@ -7,7 +9,16 @@ def pos_tag(corpus):
 
 
 def train_tagger():
-    pass
+    x_train, x_test, y_train, y_test = load_dataset()
+
+
+def load_dataset():
+    corpus = set(nltk.corpus.brown.tagged_words(tagset='universal'))
+    x = [word for (word, tag) in corpus]
+    y = [tag for (word, tag) in corpus]
+    x_train, x_test, y_train, y_test = \
+        sklearn.model_selection.train_test_split(x, y, test_size=0.25)
+    return x_train, x_test, y_train, y_test
 
 
 def get_corpus():
