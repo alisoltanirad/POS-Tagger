@@ -1,6 +1,7 @@
 # https://github.com/alisoltanirad/POS-Tagger
 import numpy as np
 from nltk.corpus import brown, treebank
+from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from keras import Sequential
@@ -22,6 +23,8 @@ def pos_tag(corpus):
 
 def train_tagger():
     x, y = load_dataset(brown)
+    x = np.array(x).reshape(-1, 1)
+    x = OneHotEncoder().fit_transform(x).toarray()
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
     model = compile_network()
     model.fit(x_train, y_train, validation_data=(x_test, y_test),
@@ -39,10 +42,9 @@ def compile_network():
 
 def create_network():
     network = Sequential()
-    network.add(Embedding(len(set(brown.words())), 64, input_length=50))
-    network.add(LSTM(128))
-    network.add(LSTM(12, input_shape=(None, 128),
-                     activation='softmax', recurrent_activation='softmax'))
+    network.add(Dense(64))
+    network.add(Dense(128))
+    network.add(Dense(12, activation='softmax'))
     return network
 
 
