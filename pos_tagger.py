@@ -7,11 +7,31 @@ from keras.layers import Dense, Flatten, LSTM
 
 def pos_tag(corpus):
     pos_tagger = train_tagger()
+    tagged_corpus = pos_tagger.predict(corpus)
+    return tagged_corpus
 
 
 def train_tagger():
     x_train, x_test, y_train, y_test = load_dataset()
+    model = compile_network()
+    model.fit(x_train, y_train, validation_data=(x_test, y_test),
+              batch_size=8, epochs=1)
+    return model
 
+
+def compile_network():
+    network = create_network()
+    network.compile(loss='categorical_crossentropy', optimizer='adam')
+    return network
+
+
+def create_network():
+    network = Sequential()
+    network.add(LSTM(128))
+    network.add(LSTM(64))
+    network.add(LSTM(64))
+    network.add(LSTM(12, activation='softmax', recurrent_activation='softmax'))
+    return network
 
 
 def load_dataset():
@@ -28,7 +48,7 @@ def get_corpus():
 
 def main():
     corpus = get_corpus()
-    pos_tag(corpus)
+    tagged_corpus = pos_tag(corpus)
 
 
 if __name__ == '__main__':
