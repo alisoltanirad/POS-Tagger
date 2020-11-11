@@ -11,7 +11,7 @@ from keras.layers import Embedding, Dense, Flatten, LSTM
 
 def evaluate_tagger():
     words, tags = load_dataset(treebank)
-    words = sequence.pad_sequences(words, maxlen=56057)
+    words = sequence.pad_sequences(words, maxlen=len(set(brown.words())))
 
     predicted_tags = pos_tag(words)
     predicted_tags = (predicted_tags > 0.5)
@@ -31,7 +31,7 @@ def train_tagger():
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
     model = compile_network()
     model.fit(x_train, y_train, validation_data=(x_test, y_test),
-              batch_size=128, epochs=1)
+              batch_size=256, epochs=2, verbose=2)
     return model
 
 
