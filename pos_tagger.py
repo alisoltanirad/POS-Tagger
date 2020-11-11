@@ -10,14 +10,12 @@ from keras.layers import Embedding, Dense, Flatten, LSTM
 
 
 def evaluate_tagger():
-    words, tags = get_corpus()
-    words = np.array(words).reshape(-1, 1)
-    words = OneHotEncoder().fit_transform(words).toarray()
+    words, tags = load_dataset(treebank)
     words = sequence.pad_sequences(words, maxlen=56057)
-    tags = np.array(tags).reshape(-1, 1)
-    tags = OneHotEncoder().fit_transform(tags).toarray()
+
     predicted_tags = pos_tag(words)
     predicted_tags = (predicted_tags > 0.5)
+
     print('* POS tagger accuracy: {:.2%}'.format(accuracy_score(tags,
                                                             predicted_tags)))
 
@@ -30,14 +28,10 @@ def pos_tag(corpus):
 
 def train_tagger():
     x, y = load_dataset(brown)
-    x = np.array(x).reshape(-1, 1)
-    x = OneHotEncoder().fit_transform(x).toarray()
-    y = np.array(y).reshape(-1, 1)
-    y = OneHotEncoder().fit_transform(y).toarray()
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
     model = compile_network()
     model.fit(x_train, y_train, validation_data=(x_test, y_test),
-              batch_size=1024, epochs=1)
+              batch_size=128, epochs=1)
     return model
 
 
@@ -59,13 +53,17 @@ def create_network():
 
 def load_dataset(corpus):
     dataset = set(corpus.tagged_words(tagset='universal'))
-    x = [word for (word, tag) in dataset]
-    y = [tag for (word, tag) in dataset]
+    words = [word for (word, tag) in dataset]
+    tags = [tag for (word, tag) in dataset]
+    x = encode_array(words)
+    y = encode_array(tags)
     return x, y
 
 
-def get_corpus():
-    return load_dataset(treebank)
+def encode_array(array):
+    reshaped_array = np.array(array).reshape(-1, 1)
+    encoded_array = OneHotEncoder().fit_transform(reshaped_array).toarray()
+    return encoded_array
 
 
 def main():
